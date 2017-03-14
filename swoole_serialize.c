@@ -389,20 +389,33 @@ static void* swoole_unserialize_arr(void *buffer, zval *zvalue, uint32_t nNumOfE
     {
         return NULL;
     }
-    ZVAL_NEW_ARR(zvalue);
+
+    
+    //ZVAL_NEW_ARR(zvalue);
 
     //Initialize buckets
-    zend_array *ht = Z_ARR_P(zvalue);
+    // php7
+    //zend_array *ht = Z_ARR_P(zvalue);
+    // php 5
+    MAKE_STD_ZVAL(zvalue);
+    array_init(zvalue);
+    HashTable *ht = Z_ARRVAL_P(zvalue);
     ht->nTableSize = size;
-    ht->nNumUsed = nNumOfElements;
+    ht->nTableMask = -(ht->nTableSize);
     ht->nNumOfElements = nNumOfElements;
     ht->nNextFreeElement = 0;
+
+    /*
+    ht->nNumUsed = nNumOfElements;
     ht->u.flags = HASH_FLAG_APPLY_PROTECTION;
-    ht->nTableMask = -(ht->nTableSize);
     ht->pDestructor = ZVAL_PTR_DTOR;
 
     GC_REFCOUNT(ht) = 1;
     GC_TYPE_INFO(ht) = IS_ARRAY;
+    */
+    zvalue->refcount__gc = 1;
+    zvalue->type = IS_ARRAY;
+
     if (ht->nNumUsed)
     {
         //    void *arData = ecalloc(1, len);
@@ -1124,6 +1137,11 @@ again:
 
 PHP_SWOOLE_SERIALIZE_API zend_string* php_swoole_serialize(zval *zvalue)
 {
+#if PHP_MAJOR_VERSION < 7
+    printf("php5\n");
+#else
+    printf("php7\n");
+#endif
 
     seriaString str;
     swoole_string_new(SERIA_SIZE, &str, Z_TYPE_P(zvalue));
