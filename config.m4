@@ -40,6 +40,7 @@ if test "$PHP_SWOOLE_SERIALIZE" != "no"; then
   dnl   AC_MSG_ERROR([Please reinstall the swoole_serialize distribution])
   dnl fi
 
+
   dnl # --with-swoole_serialize -> add include path
   dnl PHP_ADD_INCLUDE($SWOOLE_SERIALIZE_DIR/include)
 
